@@ -1,6 +1,8 @@
 public class Vehicle {
 
     public Vehicle(int InitialAltitude) {
+        this.Altitude=InitialAltitude;
+        this.PrevAltitude=InitialAltitude;
         // initialize the altitude AND previous altitude to initialAltitude
     }
 
@@ -11,11 +13,11 @@ public class Vehicle {
     String dead = "\nCRASH!!\n\tThere were no survivors.\n\n";
     public static final int DEAD = -3;
     String crashed = "\nThe Starship crashed. Good luck getting back home. Elon is pissed.\n\n";
-    public static final int CRASHED = -2;
+    public static final int CRASHED = -3;
     String emptyfuel = "\nThere is no fuel left. You're floating around like Major Tom.\n\n";
     public static final int EMPTYFUEL = -1;
     String success = "\nYou made it! Good job!\n\n";
-    public static final int SUCCESS = 0;
+    public static final int SUCCESS = -3;
     public static final int FLYING = 1;
 
     // this is initial vehicle setup
@@ -54,30 +56,60 @@ public class Vehicle {
 
     public int computeDeltaV() {
         // return velocity + gravity - burn amount
-        return 0;
+        return this.Velocity+this.Gravity-this.Burn;
     }
 
     public void adjustForBurn(int burnAmount) {
+        this.Burn=burnAmount;
         // set burn to burnamount requested
+        this.PrevAltitude=this.Altitude;
         // save previousAltitude with current Altitude
+        this.Velocity=computeDeltaV();
         // set new velocity to result of computeDeltaV function.
+        this.Altitude -= this.Velocity;
         // subtract speed from Altitude
+        this.Fuel-=this.Burn;
         // subtract burn amount fuel used from tank
     }
 
     public boolean stillFlying() {
+        if(this.Altitude>0){
+            return true;
+        }
         // return true if altitude is positive
         return false;
     }
     public boolean outOfFuel() {
+        if(this.Fuel<=0){
+            return true;
+        }
         // return true if fuel is less than or equal to zero
-        return true;
+        return false;
     }
 
     public DescentEvent getStatus(int tick) {
         // create a return a new DescentEvent object
         // filled in with the state of the vehicle.
-        return null;
+        this.Flying = -4000;
+
+            if (this.Velocity > 10) {
+                Flying = DEAD;
+            }
+            if (this.Velocity < 10 && this.Velocity > 3) {
+                Flying = CRASHED;
+            }
+            if (this.Velocity < 3 && this.Velocity > 0)
+            {
+                Flying= SUCCESS;
+            }
+
+        return new DescentEvent(tick,this.Velocity,this.Fuel,this.Altitude,this.Flying);
+
+    }
+    public int getStatus2(){
+        return Flying;
     }
 
-}
+    }
+
+
